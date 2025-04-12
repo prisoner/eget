@@ -288,10 +288,20 @@ func bintime(bin string, to string) (t time.Time) {
 	if file == "" {
 		file = filepath.Join(dir, bin)
 	}
+
+	if opts.Debug {
+		fmt.Printf("check ModTime of file: %s\n", file)
+	}
+
 	fi, err := os.Stat(file)
 	if err != nil {
 		return
 	}
+
+	if opts.Debug {
+		fmt.Printf("ModTime of file: %s %s\n", file, fi.ModTime())
+	}
+
 	return fi.ModTime()
 }
 
@@ -305,7 +315,7 @@ func downloadConfigRepositories(config *Config) error {
 		binary = os.Args[0]
 	}
 
-	for name, _ := range config.Repositories {
+	for name := range config.Repositories {
 		cmd := exec.Command(binary, name)
 		cmd.Stderr = os.Stderr
 
@@ -386,6 +396,11 @@ func main() {
 		os.Exit(0)
 	}
 
+	if cli.Debug {
+		fmt.Println("Debug mode enabled")
+		opts.Debug = true
+	}
+
 	if len(args) <= 0 {
 		fmt.Println("no target given")
 		flagparser.WriteHelp(os.Stdout)
@@ -433,7 +448,7 @@ func main() {
 	if len(candidates) != 0 && err != nil {
 		// if multiple candidates are returned, the user must select manually which one to download
 		fmt.Fprintf(os.Stderr, "%v: please select manually\n", err)
-		choices := make([]interface{}, len(candidates))
+		choices := make([]any, len(candidates))
 		for i := range candidates {
 			choices[i] = path.Base(candidates[i])
 		}
@@ -503,7 +518,7 @@ func main() {
 	if len(bins) != 0 && err != nil && !opts.All {
 		// if there are multiple candidates, have the user select manually
 		fmt.Fprintf(os.Stderr, "%v: please select manually\n", err)
-		choices := make([]interface{}, len(bins)+1)
+		choices := make([]any, len(bins)+1)
 		for i := range bins {
 			choices[i] = bins[i]
 		}
@@ -527,6 +542,9 @@ func main() {
 		// write the extracted file to a file on disk, in the --to directory if
 		// requested
 		out := filepath.Base(bin.Name)
+		isBinNameChanged := tool != out
+		originalName := out
+
 		if opts.Output == "-" {
 			out = "-"
 		} else if opts.Output != "" && IsDirectory(opts.Output) {
@@ -553,6 +571,9 @@ func main() {
 		}
 
 		fmt.Fprintf(output, "Extracted `%s` to `%s`\n", bin.ArchiveName, out)
+		if isBinNameChanged {
+			fmt.Fprintf(output, "\033[31mtool: %s, bin: %s\033[0m, you should set target='%s'\n", tool, originalName, out)
+		}
 	}
 
 	if opts.All {

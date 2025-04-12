@@ -279,9 +279,7 @@ func (a *ArchiveExtractor) Extract(data []byte, multiple bool) (ExtractedFile, [
 			if direct && !multiple {
 				return ef, nil, err
 			}
-			if err == nil {
-				candidates = append(candidates, ef)
-			}
+			candidates = append(candidates, ef)
 		}
 	}
 	if len(candidates) == 1 {

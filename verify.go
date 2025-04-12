@@ -76,6 +76,9 @@ func (s256 *Sha256AssetVerifier) Verify(b []byte) error {
 	}
 	expected := make([]byte, sha256.Size)
 	n, err := hex.Decode(expected, data)
+	if err != nil {
+		return fmt.Errorf("failed to decode sha256sum: %v", err)
+	}
 	if n < sha256.Size {
 		return fmt.Errorf("sha256sum (%s) too small: %d bytes decoded", string(data), n)
 	}

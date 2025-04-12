@@ -104,6 +104,10 @@ func (f *GithubAssetFinder) Find() ([]string, error) {
 		return nil, err
 	}
 
+	if opts.Debug {
+		fmt.Printf("GithubAssetFinder: Repo=%s, Tag=%s, CreatedAt=%s, MinTime=%s, BeforeMinTime=%t\n", f.Repo, f.Tag, release.CreatedAt, f.MinTime, release.CreatedAt.Before(f.MinTime))
+	}
+
 	if release.CreatedAt.Before(f.MinTime) {
 		return nil, ErrNoUpgrade
 	}
