@@ -247,6 +247,7 @@ func SetGlobalOptionsFromConfig(config *Config, parser *flags.Parser, opts *Flag
 	opts.Verify = update("", cli.Verify)
 	opts.Remove = update(false, cli.Remove)
 	opts.DisableSSL = update(false, cli.DisableSSL)
+	opts.DisableVerify = update(true, cli.DisableVerify)
 	return nil
 }
 

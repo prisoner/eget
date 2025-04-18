@@ -494,18 +494,20 @@ func main() {
 
 	body := buf.Bytes()
 
-	sumAsset := checksumAsset(url, assets)
-	verifier, err := getVerifier(sumAsset, &opts)
-	if err != nil {
-		fatal(err)
-	}
-	err = verifier.Verify(body)
-	if err != nil {
-		fatal(err)
-	} else if opts.Verify == "" && sumAsset != "" {
-		fmt.Fprintf(output, "Checksum verified with %s\n", path.Base(sumAsset))
-	} else if opts.Verify != "" {
-		fmt.Fprintf(output, "Checksum verified\n")
+	if !opts.DisableVerify {
+		sumAsset := checksumAsset(url, assets)
+		verifier, err := getVerifier(sumAsset, &opts)
+		if err != nil {
+			fatal(err)
+		}
+		err = verifier.Verify(body)
+		if err != nil {
+			fatal(err)
+		} else if opts.Verify == "" && sumAsset != "" {
+			fmt.Fprintf(output, "Checksum verified with %s\n", path.Base(sumAsset))
+		} else if opts.Verify != "" {
+			fmt.Fprintf(output, "Checksum verified\n")
+		}
 	}
 
 	extractor, err := getExtractor(url, tool, &opts)
